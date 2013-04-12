@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<title></title>
+		<link rel="stylesheet" href="layout.css" type="text/css" >
+		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script type="text/javascript" src="js/grid.js"></script>
+		<script type="text/javascript" src="js/main.js"></script>
+		<script type="text/javascript">
+			var gridSeed = [];
+			var gameTimer = '';
+			$(function(){
+				initGrid(gridSeed);
+
+				$("#tick").on('click',function(){
+					tick();
+				});
+
+				$("#startGame").on('click',function(){
+					$("#tick").attr('disabled','disabled');
+					gameTimer = setInterval(tick,200);
+				});
+
+				$("#pauseGame").on('click',function(){
+					$("#tick").attr('disabled',null);
+					clearInterval(gameTimer);
+				});
+
+				$("#clearGame").on('click',function(){
+					$("#tick").attr('disabled',null);
+					clearInterval(gameTimer);
+					clearGrid();
+				});
+
+				$("#blinker").on('click',function(){
+					clearGrid();
+					initGrid([[5,5],[5,6],[5,7]]);
+				});
+
+				$("#toad").on('click',function(){
+					clearGrid();
+					initGrid([[15,15],[16,15],[15,16],[16,16],[15,17],[16,14]]);
+				});
+
+				$("#beacon").on('click',function(){
+					clearGrid();
+					initGrid([[15,15],[16,15],[15,16],[16,16],[17,17],[17,18],[18,17],[18,18]]);
+				});
+
+				$("#pulsar").on('click',function(){
+					clearGrid();
+					var pattern = [];
+					pattern.push([32,30],[33,30],[34,30]);
+					pattern.push([30,32],[30,33],[30,34]);
+					pattern.push([38,30],[39,30],[40,30]);
+					pattern.push([30,38],[30,39],[30,40]);
+					pattern.push([32,42],[33,42],[34,42]);
+					pattern.push([38,42],[39,42],[40,42]);
+					pattern.push([42,38],[42,39],[42,40]);
+					pattern.push([42,32],[42,33],[42,34]);
+					pattern.push([35,32],[35,33],[35,34]);
+					pattern.push([37,32],[37,33],[37,34]);
+					pattern.push([32,35],[33,35],[34,35]);
+					pattern.push([38,35],[39,35],[40,35]);
+					pattern.push([32,37],[33,37],[34,37]);
+					pattern.push([38,37],[39,37],[40,37]);
+					pattern.push([35,38],[35,39],[35,40]);
+					pattern.push([37,38],[37,39],[37,40]);
+					initGrid(pattern);
+				});
+
+				$("#glider").on('click',function(){
+					clearGrid();
+					initGrid([[10,10],[11,11],[11,12],[10,12],[9,12]]);
+				});
+
+				$("#LWSS").on('click',function(){
+					clearGrid();
+					initGrid([[3,20],[4,19],[5,19],[6,19],[7,19],[7,20],[7,21],[6,22],[3,22]]);
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="wrapper">
+				<button id="startGame">Play</button>
+				<button id="pauseGame">Stop</button>
+				<button id="clearGame">Clear</button>
+				<button id="tick">Tick</button>
+				Avg execution: <span id="tickAvg">0</span> secs | <span  id="generations"></span > gens
+				<br/>
+				<fieldset>
+					<legend>Oscillators</legend>
+					<button id="blinker">Blinker </button>
+					<button id="toad">Toad</button>
+					<button id="beacon">Beacon</button>
+					<button id="pulsar">Pulsar</button>
+				</fieldset>
+				<fieldset>
+					<legend>Spaceships</legend>
+				<button id="glider">Glider</button>
+				<button id="LWSS">Lightweight spaceship</button>
+				</fieldset>
+				<br/><br/>
+				<div id="grid"></div>
+		</div>
+	</body>
+</html>
