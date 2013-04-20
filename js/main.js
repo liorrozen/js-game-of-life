@@ -200,3 +200,9 @@ function getLiveCells(){
 	}
 	console.log(JSON.stringify(cells));
 }
+
+function gameEnd(){
+  gameContext.fillStyle = "red";
+  gameContext.font = "bold 5em Arial";
+  gameContext.fillText("Game Over!", 70, 100);
+}
