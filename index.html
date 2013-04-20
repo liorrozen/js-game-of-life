@@ -19,17 +19,18 @@
 
 				$("#startGame").on('click',function(){
 					$("#tick").attr('disabled','disabled');
-					gameTimer = setInterval(tick,100);
+					doTick = true;
+					tick();
 				});
 
 				$("#pauseGame").on('click',function(){
 					$("#tick").attr('disabled',null);
-					clearInterval(gameTimer);
+					doTick = false;
 				});
 
 				$("#clearGame").on('click',function(){
 					$("#tick").attr('disabled',null);
-					clearInterval(gameTimer);
+					doTick = false;
 					clearGrid();
 				});
 
