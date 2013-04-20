@@ -53,7 +53,7 @@ function tick() {
 		deadCells = [];
 
 		// Create temporary grid for next generation
-		var tempLiveCells = [];
+		var tempLiveCells = {};
 
 		for (cell in liveCells){
 			cellArr = cell.split('_');
@@ -101,6 +101,10 @@ function tick() {
 			}
 		}
 
+		if (JSON.stringify(liveCells) === JSON.stringify(tempLiveCells)){
+			doTick = false;
+			gameEnd();
+		}
 		liveCells = tempLiveCells;
 
 
