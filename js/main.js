@@ -1,8 +1,9 @@
-var grid = '';
+var liveCells = {};
+var deadCells = {};
 
-var gridHeight = 103; // units
-var gridWidth = 103; // units
-var cellSize = 5; // pixels
+var gridHeight; // units
+var gridWidth; // units
+var cellSize; // pixels
 
 var gridCanvas = '';
 var gridContext = '';
@@ -14,15 +15,6 @@ var tickExecutionTotal = 0;
 var tickAverage = 0;
 
 function initGrid(seed) {
-	grid = [];
-	// Assemble grid 
-	for (var rows = 0; rows < gridHeight; rows++){
-		var rowArr = [];
-		for (var cols = 0; cols < gridWidth; cols++) {
-			rowArr.push([rows,cols]);
-		};
-		grid.push(rowArr);
-	}
 
 	// Render grid - https://github.com/enterprisebug/grid.js
 	$("canvas").remove();
@@ -44,7 +36,7 @@ function initGrid(seed) {
 	$.each(seed,function(index,cell) {
 		var row = cell[0];
 		var col = cell[1];
-		grid[row][col].push('live');
+		liveCells[row+'_'+col] = 1;
 		drawGameCell(row,col);
 	});
 }
@@ -56,41 +48,60 @@ function tick() {
 	// Clear game canvas
 	gameContext.clearRect(0, 0, (gridWidth*cellSize)+1, (gridHeight*cellSize)+1);
 
-	// Create temporary grid for next generation
-	var tempGrid = [];
+	// Clear deadCells
+	deadCells = [];
 
-	for (var rows = 0; rows < gridHeight; rows++) {
-		tempGrid[rows] = [];
-		for (var cols = 0; cols < gridWidth; cols++) {
-			var cell = grid[rows][cols];
-			// Retrieve cell neighbours
-			liveCellNeighbours = getLiveCellNeighboursCount(rows,cols);
-			tempGrid[rows][cols] = [rows,cols,'live'];
-			if (cell[2] !== undefined ) {	// This is a live cell
-				if (liveCellNeighbours < 2){
-					// Live cell with fewer than two live neighbours dies, as if caused by under-population.
-					delete tempGrid[rows][cols][2];
-				}else{
-					if (liveCellNeighbours == 2 || liveCellNeighbours == 3) {
-						// Live cell with two or three live neighbours lives on to the next generation.
-						drawGameCell(rows,cols);
-					}else{
-						// Live cell with more than three live neighbours dies, as if by overcrowding.
-						delete tempGrid[rows][cols][2];
-					}
-				}
-			}else {
-				if (liveCellNeighbours == 3) {
-					// Dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-					drawGameCell(rows,cols);
-				}else{
-					delete tempGrid[rows][cols][2];
-				}
+	// Create temporary grid for next generation
+	var tempLiveCells = [];
+	
+	for (cell in liveCells){
+		cellArr = cell.split('_');
+		rows = cellArr[0];
+		cols = cellArr[1];
+
+		var newCell = [rows,cols,'live'];
+		var isLive = true;
+
+		// Retrieve cell neighbours
+		liveCellNeighbours = getCellNeighboursCount(true,rows,cols);
+		if (liveCellNeighbours < 2){
+			// Live cell with fewer than two live neighbours dies, as if caused by under-population.
+			isLive = false;
+		}else{
+			if (liveCellNeighbours == 2 || liveCellNeighbours == 3) {
+				// Live cell with two or three live neighbours lives on to the next generation.
+				drawGameCell(rows,cols);
+			}else{
+				// Live cell with more than three live neighbours dies, as if by overcrowding.
+				isLive = false;
 			}
-		};
+		}
+
+		if (isLive){
+			// filters out all non Number values and adds to tempLiveCells
+			tempLiveCells[rows+'_'+cols] = 1;
+		}else{
+			newCell = newCell.filter(Number);
+		}
 	}
-	// Dump temporary grid back to real grid
-	grid = tempGrid;
+
+
+	// go over all relevant dead cells
+	var tempDeadCells = deadCells;
+	for (cell in tempDeadCells){
+		cellArr = cell.split('_');
+		rows = cellArr[0];
+		cols = cellArr[1];
+		liveCellNeighbours = getCellNeighboursCount(false,rows,cols);
+		if (liveCellNeighbours == 3) {
+			// Dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+			tempLiveCells[rows+'_'+cols] = 1;
+			drawGameCell(rows,cols);
+		}
+	}
+
+	liveCells = tempLiveCells;
+
 
 	// Calculate average execution time and total generation
 	var end = new Date().getTime();
@@ -99,20 +110,28 @@ function tick() {
 	var tickAvg = (tickExecutionTotal / tickCount).toFixed(3);
 	$("#tickAvg").text(tickAvg);
 	$("#generations").text(tickCount);
+
 }
 
 function drawGameCell(row,col) {
-	var x = (row * cellSize);
-	var y = (col * cellSize);
+	var x = (col * cellSize);
+	var y = (row * cellSize);
+	gameContext.fillStyle = '#000000';
 	gameContext.fillRect(x,y,cellSize,cellSize);
 }
 
+function clearGameCell(row,col) {
+	var x = (col * cellSize);
+	var y = (row * cellSize);
+	gameContext.clearRect(x-1,y-1,cellSize+2,cellSize+2);
+}
 
-function getLiveCellNeighboursCount(row,col) {
+
+function getCellNeighboursCount(isLive,row,col) {
 	var cells = 0;
-	var cell = [];
-	var r = 0;
-	var c = 0;
+
+	row = Number(row);
+	col = Number(col);
 
 	// upper 3
 	// +---+---+---+
@@ -120,27 +139,9 @@ function getLiveCellNeighboursCount(row,col) {
 	// | 0 | ■ | 0 |
 	// | 0 | 0 | 0 |
 	// +---+---+---+
-	r = row - 1;
-	c = col - 1;
-	try{
-		if (grid[r][c][2] == 'live') {
-			cells++;
-		}
-	}catch(e) {}
-	r = row - 1;
-	c = col;
-	try{
-		if (grid[r][c][2] == 'live') {
-			cells++;
-		}
-	}catch(e) {}
-	r = row - 1;
-	c = col + 1;
-	try{
-		if (grid[r][c][2] == 'live') {
-			cells++;
-		}
-	}catch(e) {}
+	cells += isLivingCell(isLive,row - 1, col - 1)? 1 : 0;
+	cells += isLivingCell(isLive,row - 1, col)? 1 : 0;
+	cells += isLivingCell(isLive,row - 1, col + 1)? 1 : 0;
 
 	// sides
 	// +---+---+---+
@@ -148,20 +149,8 @@ function getLiveCellNeighboursCount(row,col) {
 	// | X | ■ | X |
 	// | 0 | 0 | 0 |
 	// +---+---+---+
-	r = row;
-	c = col + 1;
-	try{
-		if (grid[r][c][2] == 'live') {
-			cells++;
-		}
-	}catch(e) {}
-	r = row;
-	c = col - 1;
-	try{
-		if (grid[r][c][2] == 'live') {
-			cells++;
-		}
-	}catch(e) {}
+	cells += isLivingCell(isLive,row, col - 1)? 1 : 0;
+	cells += isLivingCell(isLive,row, col + 1)? 1 : 0;
 
 	// lower 3
 	// +---+---+---+
@@ -169,33 +158,36 @@ function getLiveCellNeighboursCount(row,col) {
 	// | 0 | ■ | 0 |
 	// | X | X | X |
 	// +---+---+---+
-	r = row + 1;
-	c = col - 1;
-	try{
-		if (grid[r][c][2] == 'live') {
-			cells++;
-		}
-	}catch(e) {}
-	r = row + 1;
-	c = col;
-	try{
-		if (grid[r][c][2] == 'live') {
-			cells++;
-		}
-	}catch(e) {}
-	r = row + 1;
-	c = col + 1;
-	try{
-		if (grid[r][c][2] == 'live') {
-			cells++;
-		}
-	}catch(e) {}
+	cells += isLivingCell(isLive,row + 1, col - 1)? 1 : 0;
+	cells += isLivingCell(isLive,row + 1, col)? 1 : 0;
+	cells += isLivingCell(isLive,row + 1, col + 1)? 1 : 0;
 	return cells;
 }
 
+function isLivingCell(isLive,row,col){
+	if (row >= 0 && col >= 0 && row < gridHeight && col < gridWidth){
+		if (liveCells[row+'_'+col] !== undefined) {
+			return true;
+		}else{
+			if (isLive){
+				deadCells[row+'_'+col] = 1;
+			}
+		}
+	}
+	return false;
+}
+
 function clearGrid() {
-	grid = [];
+	liveCells = [];
 	tickExecutionTotal = tickCount = 0;
 	gameContext.clearRect(0, 0, (gridWidth*cellSize)+1, (gridHeight*cellSize)+1);
 	initGrid(gridSeed);
+}
+
+function getLiveCells(){
+	var cells = [];
+	for (cell in liveCells){
+		cells.push(cell.split('_'));
+	}
+	console.log(JSON.stringify(cells));
 }
