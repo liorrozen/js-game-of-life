@@ -13,6 +13,7 @@ var gameContext = '';
 var tickCount = 0;
 var tickExecutionTotal = 0;
 var tickAverage = 0;
+var doTick = false;
 
 function initGrid(seed) {
 
@@ -42,74 +43,78 @@ function initGrid(seed) {
 }
 
 function tick() {
-	tickCount++
-	var start = new Date().getTime();
+		tickCount++
+			var start = new Date().getTime();
 
-	// Clear game canvas
-	gameContext.clearRect(0, 0, (gridWidth*cellSize)+1, (gridHeight*cellSize)+1);
+		// Clear game canvas
+		gameContext.clearRect(0, 0, (gridWidth*cellSize)+1, (gridHeight*cellSize)+1);
 
-	// Clear deadCells
-	deadCells = [];
+		// Clear deadCells
+		deadCells = [];
 
-	// Create temporary grid for next generation
-	var tempLiveCells = [];
-	
-	for (cell in liveCells){
-		cellArr = cell.split('_');
-		rows = cellArr[0];
-		cols = cellArr[1];
+		// Create temporary grid for next generation
+		var tempLiveCells = [];
 
-		var newCell = [rows,cols,'live'];
-		var isLive = true;
+		for (cell in liveCells){
+			cellArr = cell.split('_');
+			rows = cellArr[0];
+			cols = cellArr[1];
 
-		// Retrieve cell neighbours
-		liveCellNeighbours = getCellNeighboursCount(true,rows,cols);
-		if (liveCellNeighbours < 2){
-			// Live cell with fewer than two live neighbours dies, as if caused by under-population.
-			isLive = false;
-		}else{
-			if (liveCellNeighbours == 2 || liveCellNeighbours == 3) {
-				// Live cell with two or three live neighbours lives on to the next generation.
-				drawGameCell(rows,cols);
-			}else{
-				// Live cell with more than three live neighbours dies, as if by overcrowding.
+			var newCell = [rows,cols,'live'];
+			var isLive = true;
+
+			// Retrieve cell neighbours
+			liveCellNeighbours = getCellNeighboursCount(true,rows,cols);
+			if (liveCellNeighbours < 2){
+				// Live cell with fewer than two live neighbours dies, as if caused by under-population.
 				isLive = false;
+			}else{
+				if (liveCellNeighbours == 2 || liveCellNeighbours == 3) {
+					// Live cell with two or three live neighbours lives on to the next generation.
+					drawGameCell(rows,cols);
+				}else{
+					// Live cell with more than three live neighbours dies, as if by overcrowding.
+					isLive = false;
+				}
+			}
+
+			if (isLive){
+				// filters out all non Number values and adds to tempLiveCells
+				tempLiveCells[rows+'_'+cols] = 1;
+			}else{
+				newCell = newCell.filter(Number);
 			}
 		}
 
-		if (isLive){
-			// filters out all non Number values and adds to tempLiveCells
-			tempLiveCells[rows+'_'+cols] = 1;
-		}else{
-			newCell = newCell.filter(Number);
+
+		// go over all relevant dead cells
+		var tempDeadCells = deadCells;
+		for (cell in tempDeadCells){
+			cellArr = cell.split('_');
+			rows = cellArr[0];
+			cols = cellArr[1];
+			liveCellNeighbours = getCellNeighboursCount(false,rows,cols);
+			if (liveCellNeighbours == 3) {
+				// Dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+				tempLiveCells[rows+'_'+cols] = 1;
+				drawGameCell(rows,cols);
+			}
 		}
+
+		liveCells = tempLiveCells;
+
+
+		// Calculate average execution time and total generation
+		var end = new Date().getTime();
+		var executionTime = parseFloat(((end-start) / 1000 ).toFixed(3));
+		tickExecutionTotal += executionTime;
+		var tickAvg = (tickExecutionTotal / tickCount).toFixed(3);
+		$("#tickAvg").text(tickAvg);
+		$("#generations").text(tickCount);
+
+	if (doTick){
+		setTimeout(tick,0);
 	}
-
-
-	// go over all relevant dead cells
-	var tempDeadCells = deadCells;
-	for (cell in tempDeadCells){
-		cellArr = cell.split('_');
-		rows = cellArr[0];
-		cols = cellArr[1];
-		liveCellNeighbours = getCellNeighboursCount(false,rows,cols);
-		if (liveCellNeighbours == 3) {
-			// Dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-			tempLiveCells[rows+'_'+cols] = 1;
-			drawGameCell(rows,cols);
-		}
-	}
-
-	liveCells = tempLiveCells;
-
-
-	// Calculate average execution time and total generation
-	var end = new Date().getTime();
-	var executionTime = parseFloat(((end-start) / 1000 ).toFixed(3));
-	tickExecutionTotal += executionTime;
-	var tickAvg = (tickExecutionTotal / tickCount).toFixed(3);
-	$("#tickAvg").text(tickAvg);
-	$("#generations").text(tickCount);
 
 }
 
