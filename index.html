@@ -1,211 +1,47 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title></title>
-		<link rel="stylesheet" href="layout.css" type="text/css" >
-		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-		<script type="text/javascript" src="js/grid.js"></script>
-		<script type="text/javascript" src="js/main.js"></script>
-		<script type="text/javascript">
-			var gridSeed = [];
-			var gameTimer = '';
-			$(function(){
-
-
-				$("#tick").on('click',function(){
-					tick();
-				});
-
-				$("#startGame").on('click',function(){
-					$("#tick").attr('disabled','disabled');
-					doTick = true;
-					tick();
-				});
-
-				$("#pauseGame").on('click',function(){
-					$("#tick").attr('disabled',null);
-					doTick = false;
-				});
-
-				$("#clearGame").on('click',function(){
-					$("#tick").attr('disabled',null);
-					doTick = false;
-					clearGrid();
-				});
-
-				$("#blinker").on('click',function(){
-					clearGrid();
-					initGrid([[1,1],[2,1],[3,1]]);
-				});
-
-				$("#toad").on('click',function(){
-					clearGrid();
-					initGrid([[5,5],[6,5],[5,6],[6,6],[5,7],[6,4]]);
-				});
-
-				$("#beacon").on('click',function(){
-					clearGrid();
-					initGrid([[5,5],[6,5],[5,6],[6,6],[7,7],[7,8],[8,7],[8,8]]);
-				});
-
-				$("#pulsar").on('click',function(){
-					clearGrid();
-					var pattern = [];
-					pattern.push([4,2],[5,2],[6,2]);
-					pattern.push([2,4],[2,5],[2,6]);
-					pattern.push([10,2],[11,2],[12,2]);
-					pattern.push([2,10],[2,11],[2,12]);
-					pattern.push([4,14],[5,14],[6,14]);
-					pattern.push([10,14],[11,14],[12,14]);
-					pattern.push([14,10],[14,11],[14,12]);
-					pattern.push([14,4],[14,5],[14,6]);
-					pattern.push([7,4],[7,5],[7,6]);
-					pattern.push([9,4],[9,5],[9,6]);
-					pattern.push([4,7],[5,7],[6,7]);
-					pattern.push([10,7],[11,7],[12,7]);
-					pattern.push([4,9],[5,9],[6,9]);
-					pattern.push([10,9],[11,9],[12,9]);
-					pattern.push([7,10],[7,11],[7,12]);
-					pattern.push([9,10],[9,11],[9,12]);
-					initGrid(pattern);
-				});
-
-				$("#glider").on('click',function(){
-					clearGrid();
-					initGrid([[5,5],[6,6],[6,7],[5,7],[4,7]]);
-				});
-
-				$("#heavy").on('click',function(){
-					clearGrid();
-					var tmpl = [];
-					for (var i = 0; i<=gridWidth; i++){
-						tmpl.push([Math.floor(gridWidth/2),i]);
-					}
-					console.log(tmpl);
-					initGrid(tmpl);
-				});
-
-				$("#LWSS").on('click',function(){
-					clearGrid();
-					initGrid([[3,10],[4,9],[5,9],[6,9],[7,9],[7,10],[7,11],[6,12],[3,12]]);
-				});
-
-				$("#explo").on('click',function(){
-					clearGrid();
-					initGrid([[6,9],[7,9],[8,9],[10,9],[12,9],[13,9],[14,9],[10,7],[10,6],[10,5],[10,11],[10,12],[10,13]]);
-				});
-				$("#gun").on('click',function(){
-					clearGrid();
-					initGrid([[4,40],[4,39],[5,39],[5,40],[3,29],[2,29],[7,29],[8,29],[7,27],[3,27],[4,26],[5,26],[6,26],[6,25],[5,25],[4,25],[7,22],[6,21],[7,21],[8,21],[5,20],[9,20],[7,19],[4,18],[4,17],[5,16],[6,15],[7,15],[8,15],[9,16],[10,17],[10,18],[6,6],[7,6],[7,5],[6,5]] );
-				});
-
-				$("#randomize").on('click',function(){
-					clearGrid();
-					var randCells = [];
-					for (var i = 0; i<=(Math.floor(gridWidth*gridHeight)/5); i++){
-						var randRow =	Math.floor(Math.random() * (gridWidth-1 - 0 + 1));
-						var randCol = Math.floor(Math.random() * (gridHeight-1 - 0 + 1));
-						randCells.push([randRow,randCol]);
-					}
-					initGrid(randCells);
-				});
-
-				var trackMouse = false;
-				$("body").on('mousedown','#gameCanvas',function(){
-					 trackMouse = true;
-				});
-				$("body").on('click','#gameCanvas',function(e){
-					 drawCellAtMouse(this,e);
-				});
-				$("body").on('mouseup','#gameCanvas',function(){
-					 trackMouse = false;
-				});
-
-				$("body").on('mousemove','#gameCanvas',function(e){
-					if (trackMouse){
-						drawCellAtMouse(this,e);
-					}
-				});
-
-				$("#large").on('click',function(){
-					gridHeight	= 17; // units
-					gridWidth 	= 17; // units
-					cellSize 		= 35; // pixels
-					initGrid(gridSeed);
-				});
-
-				$("#medium").on('click',function(){
-					gridHeight	= 50; // units
-					gridWidth 	= 50; // units
-					cellSize 		= 12; // pixels
-					initGrid(gridSeed);
-				});
-
-				$("#small").on('click',function(){
-					gridHeight	= 120; // units
-					gridWidth 	= 120; // units
-					cellSize 		= 5; // pixels
-					initGrid(gridSeed);
-				});
-
-				$("#miniscule").on('click',function(){
-					gridHeight	= 600; // units
-					gridWidth 	= 600; // units
-					cellSize 		= 1; // pixels
-					initGrid(gridSeed);
-				});
-
-				$("#medium").trigger('click');
-			});
-
-			function drawCellAtMouse(elem,e){
-				var offset = $(elem).offset(); 
-				var row = Math.floor((e.pageY - offset.top) / cellSize);
-				var col = Math.floor((e.pageX - offset.left) / cellSize);
-				liveCells[row+'_'+col] = 1;
-				drawGameCell(row,col);
-			}
-
-		</script>
-	</head>
-	<body>
-		<div id="wrapper">
-				<button id="startGame">Play</button>
-				<button id="pauseGame">Stop</button>
-				<button id="clearGame">Clear</button>
-				<button id="tick">Tick</button>
-				Avg execution: <span id="tickAvg">0</span> secs | <span  id="generations"></span > gens
-				<br/>
-				<fieldset>
-					<legend>Oscillators</legend>
-					<button id="blinker">Blinker </button>
-					<button id="toad">Toad</button>
-					<button id="beacon">Beacon</button>
-					<button id="pulsar">Pulsar</button>
-				</fieldset>
-				<fieldset>
-					<legend>Spaceships</legend>
-					<button id="glider">Glider</button>
-					<button id="LWSS">LWSS</button>
-					<button id="gun">Gosper Glider Gun</button>
-				</fieldset>
-				<br/>
-				<fieldset>
-					<legend>Experimental</legend>
-					<button id="heavy">heavy</button>
-					<button id="explo">Explosion</button>
-					<button id="randomize">Random</button>
-				</fieldset>
-				<fieldset>
-					<legend>Cell Size</legend>
-					<button id="large">large</button>
-					<button id="medium">medium</button>
-					<button id="small">small</button>
-					<button id="miniscule">miniscule</button>
-				</fieldset>
-				<br/><br/>
-				<div id="grid"></div>
-		</div>
-	</body>
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Game Of Life</title>
+    <link rel="stylesheet" href="/src/layout.css">
+    <link rel="stylesheet" href="/bower_components/material-design-lite/material.min.css">
+    <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="/bower_components/material-design-lite/material.min.js"></script>
+    <script data-main="src/main" src="/bower_components/requirejs/require.js"></script>
+</head>
+<body>
+    <style>
+    </style>
+<div class="layout-transparent mdl-layout mdl-js-layout">
+  <header class="mdl-layout__header mdl-layout__header--transparent">
+    <div class="mdl-layout__header-row">
+      <!-- Title -->
+      <span class="mdl-layout-title">Game Of Life</span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation -->
+      <nav class="mdl-navigation">
+          <a class="mdl-navigation__link" href=""><i class="material-icons">play_arrow</i></a>
+          <a class="mdl-navigation__link" href=""><i class="material-icons">pause</i></a>
+      </nav>
+    </div>
+  </header>
+  <!-- <div class="mdl&#45;layout__drawer"> -->
+  <!--   <span class="mdl&#45;layout&#45;title">Title</span> -->
+  <!--   <nav class="mdl&#45;navigation"> -->
+  <!--     <a class="mdl&#45;navigation__link" href="">Link</a> -->
+  <!--     <a class="mdl&#45;navigation__link" href="">Link</a> -->
+  <!--     <a class="mdl&#45;navigation__link" href="">Link</a> -->
+  <!--     <a class="mdl&#45;navigation__link" href="">Link</a> -->
+  <!--   </nav> -->
+  <!-- </div> -->
+  <main class="mdl-layout__content">
+      <div class="mdl-grid">
+          <div class="mdl-cell mdl-cell--middle mdl-cell--12-col">
+              <div id="container"></div>
+          </div>
+      </div>
+  </main>
+</div>
+<script src="http://localhost:35729/livereload.js"></script>
+</body>
 </html>

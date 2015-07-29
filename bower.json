@@ -1,0 +1,11 @@
+{
+    "name": "js-game-of-life",
+    "version": "0.0.1",
+    "dependencies": {
+        "requirejs": "~2.1.15",
+        "requirejs-text": "~2.0.13",
+        "jquery": "~1.10.2",
+        "backbone": "~1.1.2",
+        "material-design-lite": "1.0.0"
+    }
+}

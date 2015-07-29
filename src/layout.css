@@ -1,0 +1,12 @@
+#container { margin:0 auto; }
+.gridView { position: relative; }
+.gridView canvas {
+    position: absolute; top:0px; left:0px;
+    background: linear-gradient(45deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+    transform: rotate(-30deg) skewX(30deg) skewY(0deg)
+}
+
+.layout-transparent {
+    background: url('../assets/3px-tile.png');
+    background-color: #0c0733;
+}
