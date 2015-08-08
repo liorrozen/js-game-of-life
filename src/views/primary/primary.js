@@ -11,18 +11,26 @@ define([
     cellCollection: null,
     gridView: null,
 
+    width_: 300,
+    height_: 300,
+    cellSize: 5,
+
+    doTick: true,
+
+    totalCells: null,
+    cellMax: null,
+
     initialize: function(){
-        var width_ = 300;
-        var height_ = 300;
-        var cellSize = 10;
+        this.totalCells = Math.pow(this.width_ / this.cellSize, 2);
+        this.cellMax = this.width_ / this.cellSize;
         this.cellCollection = new CellCollection(
             [ [2,2], [10,5],[2,15] ]
         );
-        this.cellCollection.max =  width_ / cellSize;
+        this.cellCollection.max =  this.totalCells;
         this.gridView = new GridView({
             collection: this.cellCollection,
-            size: { width: width_, height: height_ },
-            cell: cellSize
+            size: { width: this.width_, height: this.height_ },
+            cell: this.cellSize
         });
     },
     set_seed: function(){
