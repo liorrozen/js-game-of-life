@@ -37,7 +37,6 @@ define([
     },
 
     tick: function(){
-        // this.gridView.clearCells();
         this.cellCollection.evolve();
         this.gridView.drawCells();
         return false;

@@ -33,8 +33,6 @@ define([
             this.tempDeadCells = {};
 
             var workingCells = this.where({'live':true});
-            console.log( workingCells.length );
-
             workingCells.forEach( function(cell){
                 var x = cell.get('x');
                 var y = cell.get('y');

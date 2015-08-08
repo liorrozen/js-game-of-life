@@ -46,7 +46,6 @@ define([
 
             var x = (col * this.cell.size);
             var y = (row * this.cell.size);
-            console.log(x,y);
             this.cell.context.fillStyle = '#474367';
             this.cell.context.fillRect(x,y,this.cell.size,this.cell.size);
         },
