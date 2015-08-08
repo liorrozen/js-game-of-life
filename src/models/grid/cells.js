@@ -16,6 +16,28 @@ define([
             });
         },
 
+        repopulate: function(cells){
+            var newCells = [];
+            var cellIds = [];
+            _.each(cells, function(cell){
+                var existingCell = this.get(cell[0]+'_'+cell[1]);
+                if (existingCell !== undefined){
+                    existingCell.older();
+                }else{
+                    newCells.push(this.model(cell));
+                }
+                cellIds.push(cell[0]+'_'+cell[1]);
+            }, this);
+
+            var cellsToRemove = _.filter(this.models, function(cell){
+                var no_longer_exists = (cellIds.indexOf(cell.id) == -1);
+                return no_longer_exists;
+            });
+
+            this.remove(cellsToRemove);
+            this.add(newCells);
+        },
+
         addTempLive: function(x, y){
             if (this.tempLiveCells[x+'_'+y] === undefined){
                 this.tempLiveCells[x+'_'+y] = [x, y, true];
@@ -72,7 +94,7 @@ define([
             var nextGen = _.map(this.tempLiveCells, function(cell) {
                 return cell;
             });
-            this.reset( nextGen );
+            this.repopulate( nextGen );
 
         },
         getNeighbours: function(isLive, x, y){
