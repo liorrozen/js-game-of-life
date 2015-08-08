@@ -37,6 +37,7 @@ define([
         },
         drawCells: function(){
 
+            this.clearCells();
             var self = this;
             $.each( this.collection.models, function( index, cell ){
                 self.drawCell( cell.get('x'), cell.get('y') );
