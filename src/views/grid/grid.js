@@ -66,6 +66,15 @@ define([
             this.grid.context.strokeStyle = '#36334D';
             this.grid.context.stroke();
         },
+
+        clearCells: function(){
+            var totalWidth = (this.grid.size.width*this.cell.size)+1;
+            var totalHeight = (this.grid.size.height*this.cell.size)+1;
+            this.cell.context.clearRect(
+                0, 0, totalWidth, totalHeight
+            );
+        },
+
         on_mouse_wheel: function(e){
             debugger;
             if(e.originalEvent.wheelDelta /120 > 0) {
