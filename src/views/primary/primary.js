@@ -44,11 +44,22 @@ define([
         this.$el.css( 'width', this.gridView.grid.size.width );
     },
 
+    start: function(){
+        this.doTick = true;
+        this.tick();
+    },
+
+    pause: function(){
+        this.doTick = false;
+    },
+
     tick: function(){
         this.cellCollection.evolve();
         this.gridView.drawCells();
-        return false;
-
+        if (this.doTick){
+            var self = this;
+            setTimeout(function(){self.tick()}, 0);
+        }
     }
   });
   return PrimaryView;
