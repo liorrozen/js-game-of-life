@@ -76,7 +76,6 @@ define([
         },
 
         on_mouse_wheel: function(e){
-            debugger;
             if(e.originalEvent.wheelDelta /120 > 0) {
                 $(".gridView").css('transform', 'scale(1)');
             }
