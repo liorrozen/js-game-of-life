@@ -8,14 +8,20 @@ define([
 
     events: {
         'click #set_seed': 'set_seed',
-        'click .tick': 'tick',
+        'click .start': 'start',
+        'click .pause': 'pause'
     },
 
     set_seed: function(){
         this.trigger('foo');
+        return false;
     },
-    tick: function(){
-        this.trigger('tick');
+    start: function(){
+        this.trigger('start');
+        return false;
+    },
+    pause: function(){
+        this.trigger('pause');
         return false;
     }
 
