@@ -14,7 +14,8 @@ define([
     primaryView.render();
 
     controlView.on('foo', primaryView.set_seed, primaryView);
-    controlView.on('tick', primaryView.tick, primaryView);
+    controlView.on('start', primaryView.start, primaryView);
+    controlView.on('pause', primaryView.pause, primaryView);
 
   };
 
