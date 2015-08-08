@@ -40,15 +40,17 @@ define([
             this.clearCells();
             var self = this;
             $.each( this.collection.models, function( index, cell ){
-                self.drawCell( cell.get('x'), cell.get('y') );
+                self.drawCell(cell);
             });
         },
-        drawCell: function(row,col) {
-
+        drawCell: function(cell) {
+            var row = cell.get('x');
+            var col = cell.get('y');
             var x = (col * this.cell.size);
             var y = (row * this.cell.size);
-            this.cell.context.fillStyle = '#474367';
-            this.cell.context.fillRect(x,y,this.cell.size,this.cell.size);
+            var ageColor = cell.getAge();
+            this.cell.context.fillStyle = ageColor;
+            this.cell.context.fillRect(x+1,y+1,this.cell.size,this.cell.size);
         },
 
         drawGrid: function(){
